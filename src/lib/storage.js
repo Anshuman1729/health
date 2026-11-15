@@ -3,6 +3,8 @@
 // New fields are added by numbered, additive migrations: they only ever add
 // keys with defaults and never rename or drop what is already there.
 
+import { seedTraining } from '../train/data.js';
+
 export const STORAGE_KEY = 'pulsedaily_flagship_v3';
 
 // Keys that must never leave this device (excluded from backup exports).
@@ -11,7 +13,8 @@ const DEVICE_ONLY_KEYS = ['ai'];
 // Each entry upgrades data from schema N-1 to N. Append only.
 // `_schema` is absent on data saved by the original single-file app; treat it as 3.
 const MIGRATIONS = {
-  // 4: (d) => ({ ...d, training: d.training ?? { exercises: [], routines: [], sessions: [] } }),
+  // 4: workout tracker (exercise library, Push/Pull/Legs routines, sessions, settings).
+  4: (d) => ({ ...d, training: d.training ?? seedTraining(d.rituals || []) }),
 };
 
 export const CURRENT_SCHEMA = Math.max(3, ...Object.keys(MIGRATIONS).map(Number));
