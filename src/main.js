@@ -1,5 +1,7 @@
 import { STORAGE_KEY, migrate, save, toBackup, fromBackup, requestPersistence } from './lib/storage.js';
 import { initPwa } from './lib/pwa.js';
+import { initTrain } from './train/ui.js';
+import './train/train.css';
 
 (function () {
   'use strict';
@@ -85,16 +87,18 @@ import { initPwa } from './lib/pwa.js';
         };
       }
     } catch (e) { /* storage unavailable: fall through to seed */ }
-    return createSeedState();
+    return migrate(createSeedState());
   }
 
   const store = loadStore();
+  persist(); // write back any schema migration straight away
   let selectedDate = TODAY_KEY;
   let activeCategory = 'all';
   let activeMeal = 'Breakfast';
   let weightWindowDays = 30;
   let lastProtHit = false, lastPulseHit = false;
   let undoCallback = null;
+  let train = null; // Train tab controller, set up at the end
 
   function persist() {
     try { save(store); }
@@ -542,7 +546,7 @@ import { initPwa } from './lib/pwa.js';
     $('iconMoon').style.display = theme === 'dark' ? 'none' : 'block';
     document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0D0E12' : '#E9ECF1';
   }
-  function renderAll() { renderHeader(); renderToday(); renderFood(); renderWeight(); renderHabits(); }
+  function renderAll() { renderHeader(); renderToday(); renderFood(); renderWeight(); renderHabits(); train?.render(selectedDate); }
   const goTo = (dk) => { selectedDate = dk; renderAll(); };
 
   /* ---------- Events ---------- */
@@ -735,10 +739,14 @@ import { initPwa } from './lib/pwa.js';
   });
 
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.view === 'train') return train.setView('train');
+    if (train.view === 'train') train.setView('today');
     document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === b));
     $(b.dataset.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }));
+  $('btnViewToggle').addEventListener('click', () => train.setView(train.view === 'train' ? 'today' : 'train'));
   $('btnMobileQuickAdd').addEventListener('click', () => {
+    if (train.view === 'train') train.setView('today');
     $('sectionFuel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     $('customFoodDrawer').classList.add('open');
     setTimeout(() => $('inputCustomName').focus(), 350);
@@ -796,6 +804,10 @@ import { initPwa } from './lib/pwa.js';
   if (document.fonts?.ready) document.fonts.ready.then(renderWeight);
 
   applyTheme(store.theme);
+  train = initTrain({
+    store, persist, showToast, celebrate, pop, ensureDay, esc, fmt, $,
+    toDateKey, fromDateKey, shiftDateKey, TODAY_KEY, renderAll,
+  });
   renderAll();
 
   // Hide the install button once running as an installed app.

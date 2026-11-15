@@ -32,6 +32,10 @@
       <span>PulseDaily</span>
     </div>
     <div class="top-actions">
+      <button type="button" class="icon-btn hide-sm" id="btnViewToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>
+        <span>Train</span>
+      </button>
       <button type="button" class="icon-btn hide-sm" id="btnOpenInstall">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
         Install
@@ -193,6 +197,8 @@
         </div>
       </section>
 
+      <section class="card train-today" id="sectionTrainToday" aria-label="Training"></section>
+
       <section class="card" id="sectionTrends" aria-label="Weight">
         <div class="card-head">
           <h2 class="card-title">Weight</h2>
@@ -252,6 +258,9 @@
       </section>
     </div>
   </main>
+
+  <!-- Train tab (rendered by src/train/ui.js) -->
+  <div class="train-view" id="trainView" hidden></div>
 </div>
 
 <nav class="tabbar" aria-label="Sections">
@@ -260,6 +269,7 @@
   <button type="button" class="tab-fab" id="btnMobileQuickAdd" aria-label="Add food">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
+  <button type="button" class="tab" data-view="train">Train</button>
   <button type="button" class="tab" data-scroll="sectionTrends">Weight</button>
   <button type="button" class="tab" data-scroll="sectionRituals">Habits</button>
 </nav>
@@ -310,6 +320,11 @@
     <div class="install-step"><b>Desktop</b>Use the install icon in the address bar.</div>
   </div>
 </div>
+
+<!-- Live workout (full screen, rendered by src/train/ui.js) -->
+<div class="session-view" id="sessionView" hidden></div>
+<div class="overlay" id="trainSheet"><div class="sheet" role="dialog" aria-modal="true" id="trainSheetBody"></div></div>
+<div class="overlay overlay-top" id="pickerSheet"><div class="sheet" role="dialog" aria-modal="true" id="pickerSheetBody"></div></div>
 
 <div class="hud" id="weightHud"></div>
 <div class="toast" id="toastBar" role="status">
