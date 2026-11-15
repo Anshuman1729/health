@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#E9ECF1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="PulseDaily" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<title>PulseDaily</title>
+<link rel="stylesheet" href="/src/styles.css" />
+<script>
+  /* Apply the saved theme before first paint so dark mode doesn't flash light. */
+  try { var t = JSON.parse(localStorage.getItem('pulsedaily_flagship_v3') || '{}').theme; if (t === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); document.querySelector('meta[name="theme-color"]').content = '#0D0E12'; } } catch (e) {}
+</script>
+</head>
+</head>
+<body>
+<canvas id="celebrationCanvas"></canvas>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 13h4l2.2-5.5L13 18l2.6-7L17.5 13H21" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span>PulseDaily</span>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="icon-btn hide-sm" id="btnOpenInstall">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
+        Install
+      </button>
+      <button type="button" class="icon-btn" id="btnOpenSettings" aria-label="Goals and backup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        <span class="hide-sm">Goals</span>
+      </button>
+      <button type="button" class="icon-btn" id="btnToggleTheme" aria-label="Switch light or dark mode">
+        <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="date-row" id="sectionToday">
+    <div>
+      <h1 class="date-title" id="headerDateText">Monday</h1>
+      <div class="date-sub">
+        <span id="headerDateSub">16 November</span>
+        <button type="button" class="today-link" id="btnJumpToday" style="display:none">Back to today</button>
+      </div>
+    </div>
+    <nav class="week" id="weekScrubber" aria-label="Choose a day"></nav>
+  </section>
+
+  <main class="layout">
+    <!-- MAIN COLUMN -->
+    <div class="stack">
+      <section class="hero" aria-label="Protein today">
+        <div class="hero-top">
+          <span class="hero-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+            Protein
+          </span>
+          <span class="hero-chip" id="tagProtDelta">110 g to go</span>
+        </div>
+        <div class="hero-figure">
+          <span class="hero-num" id="tileProtVal">0</span>
+          <span class="hero-of" id="heroProtGoal">/ 110 g</span>
+        </div>
+        <div class="segbar" id="protSegbar" aria-hidden="true"></div>
+        <p class="hero-coach" id="pacingMessage">Working out your plan for the day…</p>
+      </section>
+
+      <div class="pair">
+        <section class="card" aria-label="Calories">
+          <div class="card-head" style="margin-bottom:12px">
+            <h2 class="card-title">Calories</h2>
+            <span class="pill warn" id="tagCalDelta">1,800 left</span>
+          </div>
+          <div class="tile-num num" id="tileCalVal">0<small>kcal</small></div>
+          <div class="tile-sub" id="tileCalPct">of 1,800 budget</div>
+          <div class="track"><div class="track-fill" id="barCal" style="width:0%; background:var(--cal)"></div></div>
+          <div class="cal-meals" id="calMeals"></div>
+        </section>
+
+        <section class="card" aria-label="Water">
+          <div class="card-head" style="margin-bottom:12px">
+            <h2 class="card-title">Water</h2>
+            <span class="pill water" id="tagHydDelta">3,000 ml left</span>
+          </div>
+          <div class="tile-num num" id="vesselMainText">0<small>ml</small></div>
+          <div class="tile-sub" id="vesselSubText">0 of 12 glasses</div>
+          <div class="glasses" id="glassGrid"></div>
+          <div class="water-actions">
+            <button type="button" class="soft-btn water" id="btnWater250">+ 250 ml</button>
+            <button type="button" class="soft-btn water" id="btnWater500">+ 500 ml</button>
+            <button type="button" class="soft-btn" id="btnWaterUndo" aria-label="Remove 250 ml">−</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" id="sectionFuel" aria-label="Food">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Food</h2>
+            <div class="card-meta" id="foodTotals">Nothing logged yet</div>
+          </div>
+          <button type="button" class="primary-btn" id="btnToggleCustomDrawer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add food
+          </button>
+        </div>
+
+        <div class="food-controls">
+          <div class="adding-to">
+            <span>Adding to</span>
+            <div class="seg-ctl" id="activeMealTabs">
+              <button type="button" class="active" data-meal="Breakfast">Breakfast</button>
+              <button type="button" data-meal="Lunch">Lunch</button>
+              <button type="button" data-meal="Dinner">Dinner</button>
+              <button type="button" data-meal="Snacks">Snacks</button>
+            </div>
+          </div>
+          <div class="chips" id="pantryCategoryFilter">
+            <button type="button" class="chip active" data-cat="all">All</button>
+            <button type="button" class="chip" data-cat="protein">High protein</button>
+            <button type="button" class="chip" data-cat="meals">Meals</button>
+            <button type="button" class="chip" data-cat="drinks">Drinks</button>
+          </div>
+        </div>
+
+        <form class="drawer" id="customFoodDrawer" autocomplete="off">
+          <div class="drawer-grid">
+            <input type="text" class="field span-2" id="inputCustomName" placeholder="What did you eat?" required />
+            <input type="number" class="field" id="inputCustomCal" placeholder="kcal" min="0" max="4000" required />
+            <input type="number" class="field" id="inputCustomProt" placeholder="Protein g" min="0" max="400" step="0.5" required />
+            <select class="field" id="inputCustomCat" aria-label="Type">
+              <option value="protein">High protein</option>
+              <option value="meals">Meal</option>
+              <option value="drinks">Drink or snack</option>
+            </select>
+            <button type="submit" class="primary-btn violet" style="justify-content:center">Log it</button>
+          </div>
+          <div class="drawer-foot">
+            <label><input type="checkbox" id="chkPinPantry" checked /> Save as a quick-add tile</label>
+            <span>Goes into <b id="drawerMealLabel">Breakfast</b></span>
+          </div>
+        </form>
+
+        <div class="pantry" id="pantryChipsGrid"></div>
+
+        <div class="log-head">
+          <h3>Logged <span class="card-meta" id="timelineItemCount" style="font-family:var(--ui); font-weight:500">0 items</span></h3>
+          <button type="button" class="text-btn" id="btnRestorePantry">Reset quick-add tiles</button>
+        </div>
+        <div class="meals" id="mealTimeline"></div>
+      </section>
+    </div>
+
+    <!-- SIDE COLUMN -->
+    <div class="stack">
+      <section class="score-card" aria-label="Day score">
+        <div class="card-head">
+          <h2 class="card-title">Day score</h2>
+          <span class="card-meta">Protein, calories, water, habits</span>
+        </div>
+        <div class="score-body">
+          <div class="rings">
+            <svg viewBox="0 0 200 200">
+              <circle class="ring-track" cx="100" cy="100" r="86" stroke="rgba(255,255,255,.08)" stroke-width="14"/>
+              <circle class="ring-arc" id="heroRingProt" cx="100" cy="100" r="86" stroke="#7B6CFF" stroke-width="14"/>
+              <circle class="ring-track" cx="100" cy="100" r="68" stroke="rgba(255,255,255,.08)" stroke-width="14"/>
+              <circle class="ring-arc" id="heroRingCal" cx="100" cy="100" r="68" stroke="#FF7A2F" stroke-width="14"/>
+              <circle class="ring-track" cx="100" cy="100" r="50" stroke="rgba(255,255,255,.08)" stroke-width="14"/>
+              <circle class="ring-arc" id="heroRingHyd" cx="100" cy="100" r="50" stroke="#16AEDB" stroke-width="14"/>
+            </svg>
+            <div class="rings-center">
+              <div class="score-num num" id="heroPulseNum">0</div>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="leg"><span class="leg-dot" style="background:#7B6CFF"></span><span class="leg-name">Protein</span><span class="leg-val num" id="legProt">0%</span></div>
+            <div class="leg"><span class="leg-dot" style="background:#FF7A2F"></span><span class="leg-name">Calories</span><span class="leg-val num" id="legCal">0%</span></div>
+            <div class="leg"><span class="leg-dot" style="background:#16AEDB"></span><span class="leg-name">Water</span><span class="leg-val num" id="legHyd">0%</span></div>
+            <div class="leg"><span class="leg-dot" style="background:#12A36B"></span><span class="leg-name">Habits</span><span class="leg-val num" id="legHab">0/5</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="sectionTrends" aria-label="Weight">
+        <div class="card-head">
+          <h2 class="card-title">Weight</h2>
+          <div class="seg-ctl" id="weightRangeTabs">
+            <button type="button" data-days="7">7D</button>
+            <button type="button" class="active" data-days="30">30D</button>
+            <button type="button" data-days="90">90D</button>
+          </div>
+        </div>
+        <div class="weight-top">
+          <div>
+            <div class="weight-num num" id="heroWeightVal">— <small>kg</small></div>
+            <div class="weight-meta">
+              <span class="pill good" id="weightDeltaTag">No entries yet</span>
+              <span class="card-meta" id="weightGoalReadout">Goal 66.0 kg</span>
+            </div>
+          </div>
+          <button type="button" class="text-btn" id="btnClearSampleWeight">Clear sample data</button>
+        </div>
+        <div class="chart-box" id="weightCanvasBox"><canvas id="weightSplineCanvas"></canvas></div>
+        <form class="weighin" id="weighinForm" autocomplete="off">
+          <span class="weighin-label" id="weighinDateTag">Today's weigh-in</span>
+          <div class="stepper">
+            <button type="button" class="step" id="btnWeightMinus" aria-label="Minus 0.1 kg">−</button>
+            <input type="number" step="0.1" min="30" max="250" class="kg-input num" id="inputWeighinKg" aria-label="Weight in kg" required />
+            <button type="button" class="step" id="btnWeightPlus" aria-label="Plus 0.1 kg">+</button>
+            <button type="submit" class="primary-btn" style="height:34px; margin-left:4px">Save</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="sectionRituals" aria-label="Habits">
+        <div class="card-head">
+          <h2 class="card-title">Habits</h2>
+          <span class="pill good" id="ritualRatioBadge">0 of 5</span>
+        </div>
+        <div class="habits" id="ritualList"></div>
+        <form class="add-row" id="addRitualForm" autocomplete="off">
+          <input type="text" class="field" id="inputNewRitual" placeholder="New habit, e.g. 10k steps" required />
+          <button type="submit" class="primary-btn">Add</button>
+        </form>
+        <div class="month">
+          <div class="month-head">
+            <h3>Last 4 weeks</h3>
+            <span class="card-meta" id="matrixStrongCount">0 strong days</span>
+          </div>
+          <div class="month-grid" id="consistencyMatrix"></div>
+        </div>
+      </section>
+
+      <section class="card notes-card" aria-label="Notes">
+        <div class="card-head">
+          <h2 class="card-title">Notes</h2>
+          <span class="card-meta" id="scratchpadSavedBadge">Saved</span>
+        </div>
+        <textarea class="notes" id="scratchpadTextarea" placeholder="Workout PRs, hunger, energy, tomorrow's first task…"></textarea>
+      </section>
+    </div>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Sections">
+  <button type="button" class="tab active" data-scroll="sectionToday">Today</button>
+  <button type="button" class="tab" data-scroll="sectionFuel">Food</button>
+  <button type="button" class="tab-fab" id="btnMobileQuickAdd" aria-label="Add food">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <button type="button" class="tab" data-scroll="sectionTrends">Weight</button>
+  <button type="button" class="tab" data-scroll="sectionRituals">Habits</button>
+</nav>
+
+<!-- Goals sheet -->
+<div class="overlay" id="settingsModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="sheet-head">
+      <div>
+        <h3 class="sheet-title" id="settingsTitle">Daily goals</h3>
+        <div class="card-meta">These set the rings and progress bars.</div>
+      </div>
+      <button type="button" class="icon-btn" id="btnCloseSettings" aria-label="Close">✕</button>
+    </div>
+    <form id="settingsForm" style="display:flex; flex-direction:column; gap:16px">
+      <div class="form-grid">
+        <div class="input-group"><label for="setProtein">Protein (g)</label><input type="number" class="field" id="setProtein" min="30" max="400" step="5" required /></div>
+        <div class="input-group"><label for="setCalories">Calories (kcal)</label><input type="number" class="field" id="setCalories" min="800" max="6000" step="25" required /></div>
+        <div class="input-group"><label for="setWater">Water (ml)</label><input type="number" class="field" id="setWater" min="500" max="8000" step="250" required /></div>
+        <div class="input-group"><label for="setGoalWeight">Goal weight (kg)</label><input type="number" class="field" id="setGoalWeight" min="35" max="250" step="0.1" required /></div>
+      </div>
+      <button type="submit" class="primary-btn violet" style="justify-content:center; height:46px">Save goals</button>
+    </form>
+    <div class="sheet-section">
+      <h4>Backup</h4>
+      <div class="card-meta">Your data lives in this browser only. Export a copy now and then.</div>
+      <div class="form-grid">
+        <button type="button" class="soft-btn" id="btnExportJson">Export backup</button>
+        <button type="button" class="soft-btn" id="btnImportJson">Restore backup</button>
+        <input type="file" id="fileImportJson" accept=".json" hidden />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Install sheet -->
+<div class="overlay" id="installModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+    <div class="sheet-head">
+      <div>
+        <h3 class="sheet-title" id="installTitle">Add to home screen</h3>
+        <div class="card-meta">Opens full screen and works offline.</div>
+      </div>
+      <button type="button" class="icon-btn" id="btnCloseInstall" aria-label="Close">✕</button>
+    </div>
+    <div class="install-step"><b>iPhone (Safari)</b>Tap Share, then Add to Home Screen, then Add. Open it from the new icon.</div>
+    <div class="install-step"><b>Android (Chrome)</b>Tap the ⋮ menu, then Add to Home screen or Install app.</div>
+    <div class="install-step"><b>Desktop</b>Use the install icon in the address bar.</div>
+  </div>
+</div>
+
+<div class="hud" id="weightHud"></div>
+<div class="toast" id="toastBar" role="status">
+  <span id="toastText"></span>
+  <button type="button" class="toast-undo" id="btnToastUndo" style="display:none">Undo</button>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
