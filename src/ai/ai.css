@@ -1,0 +1,95 @@
+/* ---------- AI: same tokens and components as the rest of the app ---------- */
+
+/* Food card: describe or photograph a meal */
+.ai-food { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin-bottom: 16px; }
+.ai-food .field { background: var(--card-2); }
+.ai-food .field::placeholder { color: var(--ink-3); }
+.ai-photo { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; height: 42px; }
+.ai-photo svg { width: 17px; height: 17px; }
+.ai-food .primary-btn { height: 42px; justify-content: center; }
+
+/* Train: plan with AI */
+.ai-plan-btn {
+  margin-top: 10px; width: 100%; height: 44px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--prot-2); font-size: 14px; font-weight: 600;
+  border: 1.5px solid rgba(255,255,255,.12);
+}
+.ai-plan-btn:active { transform: scale(.98); }
+
+/* Sheets */
+.ai-wait { display: flex; align-items: center; gap: 12px; color: var(--ink-2); font-size: 14px; padding: 8px 0; }
+.spinner {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: inline-block; vertical-align: middle;
+  border: 3px solid var(--prot-soft); border-top-color: var(--prot);
+  animation: spin .8s linear infinite;
+}
+.spinner.sm { width: 14px; height: 14px; border-width: 2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-error { background: var(--over-soft); color: var(--over); border-radius: var(--r-row); padding: 14px; font-size: 14.5px; font-weight: 500; line-height: 1.5; }
+
+.ai-thumb { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--r-row); }
+.ai-items { display: flex; flex-direction: column; }
+.ai-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ai-item:first-child { padding-top: 0; }
+.ai-line { display: grid; grid-template-columns: 1fr 30px; gap: 6px; align-items: center; }
+.ai-line .field { height: 42px; padding: 0 12px; font-size: 14.5px; font-weight: 600; }
+.ai-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-right: 36px; }
+.ai-nums.three { grid-template-columns: repeat(3, 1fr); }
+.unit-in {
+  display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px;
+  background: var(--card-2); border-radius: 12px; border: 1.5px solid transparent; cursor: text;
+}
+.unit-in:focus-within { border-color: var(--prot); }
+.unit-in input { width: 100%; min-width: 0; border: none; background: transparent; outline: none; font-weight: 700; font-size: 16px; text-align: right; }
+.unit-in span { font-size: 12.5px; color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+.ai-total { font-size: 14px; color: var(--ink-2); text-align: right; }
+.ai-total b { color: var(--ink); }
+.plan-name { font-size: 14.5px; font-weight: 600; line-height: 1.25; min-width: 0; }
+.plan-name small { margin-left: 6px; font-size: 12px; font-weight: 500; color: var(--ink-3); }
+
+.ai-form { display: flex; flex-direction: column; gap: 14px; }
+.key-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.key-row .soft-btn { height: 42px; padding: 0 14px; }
+.key-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.key-actions .soft-btn { padding: 0 16px; }
+.ai-status { font-size: 13.5px; min-height: 18px; display: flex; align-items: center; gap: 8px; }
+.ai-status .good { color: var(--good); font-weight: 600; }
+.ai-status .bad { color: var(--over); font-weight: 600; }
+.text-btn.inline { padding: 0 4px; color: var(--prot); }
+
+/* Coach chat */
+.sheet.coach { height: min(88vh, 760px); max-height: none; overflow: hidden; gap: 12px; }
+.chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 2px; margin: 0 -4px; -webkit-overflow-scrolling: touch; }
+.chat-empty { color: var(--ink-2); font-size: 14px; text-align: center; padding: 28px 18px; border: 1.5px dashed var(--line-2); border-radius: var(--r-row); }
+.msg { max-width: 88%; padding: 10px 14px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.msg.user { align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 6px; white-space: pre-wrap; }
+[data-theme="dark"] .msg.user { color: #0D0E12; }
+.msg.assistant { align-self: flex-start; background: var(--card-2); border-bottom-left-radius: 6px; }
+.msg.assistant.review { background: var(--prot-soft); max-width: 100%; }
+.msg p + p, .msg p + ul, .msg p + ol, .msg ul + p, .msg ol + p { margin-top: 8px; }
+.msg ul, .msg ol { padding-left: 20px; margin-top: 4px; }
+.msg li + li { margin-top: 4px; }
+.msg b { font-weight: 700; }
+.msg .md-h { font-weight: 700; }
+.msg.typing { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
+.chat-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -24px; padding: 0 24px; }
+.chat-chips::-webkit-scrollbar { display: none; }
+.chat-chips .chip { white-space: nowrap; flex-shrink: 0; }
+.chat-chips .chip[disabled] { opacity: .4; }
+.chat-input { display: grid; grid-template-columns: 1fr 44px; gap: 8px; align-items: end; }
+.chat-input textarea { height: 44px; min-height: 44px; padding: 11px 14px; resize: none; line-height: 1.4; font-size: 16px; }
+.send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--prot); color: #fff; display: grid; place-items: center; }
+.send-btn svg { width: 20px; height: 20px; }
+.send-btn[disabled] { opacity: .4; }
+
+@media (max-width: 760px) {
+  .ai-food { grid-template-columns: 1fr 1fr; }
+  .ai-food .field { grid-column: 1 / -1; font-size: 16px; } /* 16px stops iOS zooming on focus */
+  .ai-line .field, .key-row .field { font-size: 16px; }
+  .sheet.coach { height: 92vh; }
+  .chat-chips { margin: 0 -24px; }
+}
+
+/* Toasts were shrink-wrapping to half the screen and wrapping onto 3 lines. */
+.toast { width: max-content; }
