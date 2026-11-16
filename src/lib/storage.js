@@ -4,6 +4,7 @@
 // keys with defaults and never rename or drop what is already there.
 
 import { seedTraining } from '../train/data.js';
+import { DEFAULT_TEXT_MODEL, DEFAULT_VISION_MODEL } from '../ai/client.js';
 
 export const STORAGE_KEY = 'pulsedaily_flagship_v3';
 
@@ -15,6 +16,8 @@ const DEVICE_ONLY_KEYS = ['ai'];
 const MIGRATIONS = {
   // 4: workout tracker (exercise library, Push/Pull/Legs routines, sessions, settings).
   4: (d) => ({ ...d, training: d.training ?? seedTraining(d.rituals || []) }),
+  // 5: AI settings and coach chat. Device-only: never exported in backups.
+  5: (d) => ({ ...d, ai: d.ai ?? { key: '', textModel: DEFAULT_TEXT_MODEL, visionModel: DEFAULT_VISION_MODEL, fallback: true, chat: [] } }),
 };
 
 export const CURRENT_SCHEMA = Math.max(3, ...Object.keys(MIGRATIONS).map(Number));
