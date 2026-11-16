@@ -351,7 +351,10 @@ ${X.libraryLines()}` },
       </form>`;
     const list = $('chatList'); list.scrollTop = list.scrollHeight;
   }
-  function openCoach() { renderCoach(); coach.classList.add('open'); }
+  function openCoach() {
+    if (!hasKey()) return renderSettings('<span>Add your free OpenRouter key to start using the coach.</span>');
+    renderCoach(); coach.classList.add('open');
+  }
   function pushChat(msg) {
     const a = A(); a.chat.push({ ...msg, ts: Date.now() });
     if (a.chat.length > CHAT_CAP) a.chat.splice(0, a.chat.length - CHAT_CAP);

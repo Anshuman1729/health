@@ -298,6 +298,11 @@
       </div>
       <button type="button" class="icon-btn" id="btnCloseSettings" aria-label="Close">✕</button>
     </div>
+    <button type="button" class="ai-setup-row" id="btnOpenAI">
+      <span class="ai-setup-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
+      <span class="ai-setup-text"><b>AI settings</b><span id="aiStatusLine">Not set up. Add a free OpenRouter key to use AI.</span></span>
+      <span class="row-chev" aria-hidden="true">›</span>
+    </button>
     <form id="settingsForm" style="display:flex; flex-direction:column; gap:16px">
       <div class="form-grid">
         <div class="input-group"><label for="setProtein">Protein (g)</label><input type="number" class="field" id="setProtein" min="30" max="400" step="5" required /></div>
@@ -316,11 +321,7 @@
         <input type="file" id="fileImportJson" accept=".json" hidden />
       </div>
     </div>
-    <div class="sheet-section">
-      <h4>AI</h4>
-      <div class="card-meta" id="aiStatusLine">Not set up.</div>
-      <button type="button" class="soft-btn" id="btnOpenAI">AI settings</button>
-    </div>
+    <div class="card-meta app-version" id="appVersion"></div>
   </div>
 </div>
 

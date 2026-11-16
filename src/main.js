@@ -1,5 +1,5 @@
 import { STORAGE_KEY, migrate, save, toBackup, fromBackup, requestPersistence } from './lib/storage.js';
-import { initPwa } from './lib/pwa.js';
+import { initPwa, APP_VERSION, BUILD_TIME } from './lib/pwa.js';
 import { initTrain } from './train/ui.js';
 import './train/train.css';
 import { initAI } from './ai/features.js';
@@ -837,4 +837,5 @@ import './ai/ai.css';
   // Hide the install button once running as an installed app.
   initPwa({ onStandalone: () => { $('btnOpenInstall').style.display = 'none'; } });
   requestPersistence();
+  $('appVersion').textContent = `Version ${APP_VERSION}${BUILD_TIME ? ` · built ${new Date(BUILD_TIME).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}`;
 })();
