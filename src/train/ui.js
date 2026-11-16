@@ -8,6 +8,7 @@ const ICON = {
   more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
   timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.3 2.3M9.5 2.5h5"/></svg>',
   sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
   plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   up: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
@@ -92,6 +93,7 @@ export function initTrain(ctx) {
           <button type="button" class="primary-btn violet big" data-act="start" data-id="${next.id}">Start ${esc(next.name)}</button>
           <button type="button" class="dark-btn" data-act="start-empty">Empty workout</button>
         </div>
+        <button type="button" class="ai-plan-btn" data-act="ai-plan">${ICON.spark} Plan my next workout with AI</button>
       </section>` : `
       <section class="score-card up-next"><h2 class="card-title">No routines yet</h2>
         <div class="up-actions"><button type="button" class="primary-btn violet big" data-act="new-routine">Create a routine</button><button type="button" class="dark-btn" data-act="start-empty">Empty workout</button></div></section>`;
@@ -588,6 +590,7 @@ export function initTrain(ctx) {
       case 'settings': openSettings(); break;
       case 'start': startSession(b.dataset.id); break;
       case 'start-empty': startSession(null); break;
+      case 'ai-plan': ctx.aiPlan?.(); break;
       case 'resume': openSession(); break;
       case 'reorder': routinesReorder = !routinesReorder; renderHome(); break;
       case 'routine-up': case 'routine-down': {
@@ -721,8 +724,23 @@ export function initTrain(ctx) {
   // Reopen straight into a workout that was running when the app was closed.
   if (T().active) openSession();
 
+  // Start a session from an AI plan the user confirmed.
+  function startPlanned(plan) {
+    const t = T();
+    if (t.active) return openSession();
+    t.active = {
+      id: D.uid('ss'), routineId: null, name: plan.name, startedAt: Date.now(),
+      restSec: t.settings.restSec, restEndsAt: null, restTotal: 0,
+      exercises: plan.items.map((it) => ({
+        exId: it.exId, target: { sets: it.sets, reps: it.reps },
+        sets: Array.from({ length: it.sets }, () => ({ kg: it.kg, reps: it.reps, done: false })),
+      })),
+    };
+    persist(); openSession();
+  }
+
   return {
-    setView,
+    setView, startPlanned,
     render(selectedDate) { renderTodayCard(selectedDate); renderHome(); if (T().active && !$('sessionView').hidden) renderRest(); },
     get view() { return view; },
   };

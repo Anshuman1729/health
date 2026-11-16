@@ -2,6 +2,8 @@ import { STORAGE_KEY, migrate, save, toBackup, fromBackup, requestPersistence } 
 import { initPwa } from './lib/pwa.js';
 import { initTrain } from './train/ui.js';
 import './train/train.css';
+import { initAI } from './ai/features.js';
+import './ai/ai.css';
 
 (function () {
   'use strict';
@@ -804,9 +806,31 @@ import './train/train.css';
   if (document.fonts?.ready) document.fonts.ready.then(renderWeight);
 
   applyTheme(store.theme);
+  let ai = null;
   train = initTrain({
     store, persist, showToast, celebrate, pop, ensureDay, esc, fmt, $,
     toDateKey, fromDateKey, shiftDateKey, TODAY_KEY, renderAll,
+    aiPlan: () => ai.planWorkout(),
+  });
+
+  // Log confirmed AI food items into the chosen meal, with undo.
+  function addFoods(items, meal) {
+    const day = ensureDay(selectedDate), stamp = Date.now();
+    const added = items.map((it, i) => ({ id: `food_${stamp}_${i}_${Math.random().toString(36).slice(2, 5)}`, name: it.name, cal: it.cal, prot: it.prot, meal, cat: it.prot * 4 >= it.cal * 0.3 ? 'protein' : 'meals' }));
+    day.foods.push(...added);
+    persist(); renderAll();
+    const p = added.reduce((a, f) => a + f.prot, 0);
+    showToast(`Logged to ${meal} · +${Math.round(p)} g protein`, () => {
+      const ids = new Set(added.map((f) => f.id));
+      day.foods = day.foods.filter((f) => !ids.has(f.id)); persist(); renderAll();
+    });
+  }
+  ai = initAI({
+    store, persist, showToast, esc, fmt, $, toDateKey, shiftDateKey, TODAY_KEY,
+    getActiveMeal: () => activeMeal,
+    addFoods,
+    startPlanned: (plan) => { train.setView('train'); train.startPlanned(plan); },
+    closeGoals: () => closeSheet('settingsModal'),
   });
   renderAll();
 
